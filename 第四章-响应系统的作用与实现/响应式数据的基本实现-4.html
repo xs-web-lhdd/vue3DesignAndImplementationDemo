@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>响应式数据的基本实现-4</title>
+</head>
+<body>
+  <script>
+
+    // 追踪依赖：
+    function track(target, key) {
+      if(!activeEffect) return
+      let depsMap = bucket.get(target)
+      if(!depsMap) {
+        bucket.set(target, (depsMap = new Map()))
+      }
+      let deps = depsMap.get(key)
+      if(!deps) {
+        depsMap.set(key, (deps = new Set()))
+      }
+      deps.add(activeEffect)
+    }
+
+    // 触发依赖： 
+    function trigger(target, key) {
+      const depsMap = bucket.get(target)
+      if(!depsMap) return
+      const effects = depsMap.get(key)
+      if(!effects) return
+      effects && effects.forEach(fn => fn());
+    }
+
+    const bucket = new WeakMap()
+    const data = {text: 'hello world!'}
+
+    const obj = new Proxy(data, {
+      get(target, key) {
+        track(target, key)
+        return target[key]
+      },
+      set(target, key, newVal) {
+        target[key] = newVal
+        trigger(target, key)
+        return true
+      }
+    })
+
+    let activeEffect
+    function effect(fn) {
+      activeEffect = fn
+      fn()
+    }
+
+    effect(() => {
+      console.log('effect run');
+      document.body.innerText = obj.text
+    })
+
+    setTimeout(() => {
+      // obj.notExit = 'hello vue3'
+      obj.text = 'hello vue3'
+    }, 1000);
+
+  </script>
+</body>
+</html>

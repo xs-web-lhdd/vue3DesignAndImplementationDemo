@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>响应式数据的基本实现-2</title>
+</head>
+<body>
+  <script>
+
+
+// 解决了 函数名称唯一的问题，甚至可以是一个匿名函数的问题 
+    const bucket = new Set()
+    const data = {text: 'hello world!'}
+    const obj = new Proxy(data, {
+      get(target, key) {
+        if(activeEffect) {
+          bucket.add(activeEffect)
+        }
+        return target[key]
+      },
+      set(target, key, newVal) {
+        target[key] = newVal
+        bucket.forEach(fn => fn())
+        return true
+      }
+    })
+
+    let activeEffect
+    function effect(fn) {
+      activeEffect = fn
+      fn()
+    }
+
+    effect(() => {
+      document.body.innerText = obj.text
+    })
+
+    setInterval(() => {
+      obj.text += '1' 
+    }, 1000);
+
+  </script>
+</body>
+</html>

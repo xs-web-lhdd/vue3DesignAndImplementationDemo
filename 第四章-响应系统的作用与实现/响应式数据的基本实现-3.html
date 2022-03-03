@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>响应式数据的基本实现-2</title>
+</head>
+<body>
+  <script>
+
+
+// 问题：给 obj 设置无关属性的时候，会触发bucket里面收集的函数
+// 原因：没有在副作用函数与被操作的目标字段之间建立明确的关系
+// 解决方案：重新设置bucket的数据结构，不仅仅是一个简单的Set结构
+    const bucket = new Set()
+    const data = {text: 'hello world!'}
+    const obj = new Proxy(data, {
+      get(target, key) {
+        if(activeEffect) {
+          bucket.add(activeEffect)
+        }
+        return target[key]
+      },
+      set(target, key, newVal) {
+        target[key] = newVal
+        bucket.forEach(fn => fn())
+        return true
+      }
+    })
+
+    let activeEffect
+    function effect(fn) {
+      activeEffect = fn
+      fn()
+    }
+
+    effect(() => {
+      console.log('effect run');
+      document.body.innerText = obj.text
+    })
+
+    setInterval(() => {
+      obj.notExit = 'hello vue3'
+    }, 1000);
+
+  </script>
+</body>
+</html>
