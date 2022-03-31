@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script type="module">
+    // import { reactivity, effect } from '../reactivity/index.js'
+    import { reactive } from '../reactivity/reactive.js'
+    import { effect } from '../reactivity/effect.js'
+
+    const obj = { age: 100 }
+    let res = reactive(obj)
+
+    effect(() => {
+      console.log(res.age);
+
+      return '这是返回值！'
+    }, {
+      scheduler: function() {
+        console.log(1111);
+      }
+    })
+
+  
+
+    res.age++
+
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实现 stop 函数</title>
+</head>
+<body>
+  <script type="module">
+    // import { reactivity, effect } from '../reactivity/index.js'
+    import { reactive } from '../reactivity/reactive.js'
+    import { effect, stop } from '../reactivity/effect.js'
+
+    const obj = { age: 100 }
+    let res = reactive(obj)
+
+    const runner = effect(() => {
+      console.log(res.age);
+      res.age++
+    })
+
+    res.age = 200
+
+    stop(runner)
+
+    res.age = 1000
+  
+  </script>
+</body>
+</html>
